@@ -1,62 +1,68 @@
 import personas.*
 import enfermedades.*
 
+//tests hechos por el rasta. ver como usa variables para todos como las enfermedades y personas y despues crea variables que usa para algunos tests y solo sirven para ese test
+
 describe "Temporada 1" {
-	const malaria = new EnfermedadInfecciosa(cantDeCelulasAmenazadas = 5000)
-	const otitis = new EnfermedadInfecciosa(cantDeCelulasAmenazadas = 1000)
-	const lupus = new EnfermedadAutoinmune(cantDeCelulasAmenazadas = 5000)
-	const malariaPulenta = new EnfermedadInfecciosa(cantDeCelulasAmenazadas = 80000)
-	var otitisAgresiva = new EnfermedadInfecciosa(cantDeCelulasAmenazadas = 300001)
+	//VARIABLES GENERALES PARA TODOS LOS TESTS DE LA TEMPORADA 1
 	
-	const logan = new Persona()
-	const frank = new Persona(cantidadDeCelulas = 3500000)
-	const roberto = new Persona(temperatura = 36, cantidadDeCelulas = 3000000, enfermedades = [ malaria, otitis, lupus, otitisAgresiva, otitisAgresiva ])
+	const malaria = new EnfermedadInfecciosa(celulasQueAmenaza = 5000)
+	const otitis = new EnfermedadInfecciosa(celulasQueAmenaza = 1000)
+	const lupus = new EnfermedadAutoInmune(celulasQueAmenaza = 5000)
+	const malariaPulenta = new EnfermedadInfecciosa(celulasQueAmenaza = 80000)
+	const otitisAgresiva = new EnfermedadInfecciosa(celulasQueAmenaza = 300001)
+	
+	const logan = new Persona(temperatura = 36, celulasSanas = 3000000)
+	const frank = new Persona(celulasSanas = 3500000,temperatura = 36)
+	const roberto = new Persona(temperatura = 36, celulasSanas = 3000000, enfermedadesContraidas = [ malaria, otitis, lupus, otitisAgresiva, otitisAgresiva ])
 	
 	fixture {
-		logan.contraer(malaria)
-		logan.contraer(otitis)
-		logan.contraer(lupus)
+		logan.contraerEnfermedad(malaria)
+		logan.contraerEnfermedad(otitis)
+		logan.contraerEnfermedad(lupus)
 	}
 	
 	test "Persona contrae enfermedad" {
-		frank.contraer(malariaPulenta)
-		assert.that(frank.tiene(malariaPulenta))
+		frank.contraerEnfermedad(malariaPulenta)
+		assert.that(frank.tieneEnfermedad(malariaPulenta))
 	}
 	
 	test "Enfermedad infecciosa se reproduce" {
-		malaria.reproducir()
-		assert.equals(10000, malaria.cantDeCelulasAmenazadas())
+		malaria.reproducirse()
+		assert.equals(10000, malaria.celulasQueAmenaza())
 	}
 	
 	test "Persona vive un día" {
-		const cantCelulasAntesDeSerAfectadas = logan.cantidadDeCelulas()
-		const temperaturaAntesDeSerAfectada = logan.temperatura()
+		// VARIABLES USADAS SOLO EN ESTE TEST
+		const cantCelulasAntesDeSerAfectadas = logan.celulasQueTiene()
+		const temperaturaAntesDeSerAfectada = logan.mostrarTemperatura()
+		
 		logan.vivir()
-		assert.equals(cantCelulasAntesDeSerAfectadas - 5000, logan.cantidadDeCelulas())
-		assert.equals(temperaturaAntesDeSerAfectada + 6, logan.temperatura())	
+		assert.equals(cantCelulasAntesDeSerAfectadas - 5000, logan.celulasQueTiene())
+		assert.equals(temperaturaAntesDeSerAfectada + 6, logan.mostrarTemperatura())	
 	}
 	
 	test "La cantidad total de celulas amenazadas por enfermedades agresivas es la suma de las celulas que amenaza cada  enfermedad agresiva" {
-		const cantidadCelulasAmenazadasOtitis = otitisAgresiva.cantDeCelulasAmenazadas() * 2;
+		const cantidadCelulasAmenazadasOtitis = otitisAgresiva.celulasQueAmenaza() * 2;
 		
-		const cantidadCelulasAmenazadas = roberto.cantCelulasAmenazadasPorEnfermedadesAgresivas();
+		const cantidadCelulasAmenazadas = roberto.cantDeCelulasAmenazadasPorEnfermedadesAgresivas();
 		
 		assert.equals(cantidadCelulasAmenazadasOtitis, cantidadCelulasAmenazadas)
 	}
 	
 	test "La temperatura de una persona no puede subir a mas de 45 grados" {
-		logan.subirTemperatura(10)
-		assert.equals(45, logan.temperatura())
+		logan.aumentarTemperatura(10)
+		assert.equals(45, logan.mostrarTemperatura())
 	}
 		
 	test "Una persona esta en coma cuando su temperatura es 45" {
-		logan.subirTemperatura(45)
+		logan.cambiarTemperatura(45)
 
 		assert.that(logan.estaEnComa())
 	}
 
 	test "Una persona esta en coma cuando su cantidad de celulas es menor a 1000000" {
-		logan.cantidadDeCelulas(999999)
+		logan.cambiarCelulasQueTiene(999999)
 		assert.that(logan.estaEnComa())
 	}
 	
